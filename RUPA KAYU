@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplikasi visualisasi kayu dan finishing untuk tukang kayu, desainer interior, dan klien">
+    <meta name="theme-color" content="#8B7355">
+    <title>RUPAKAYU - Visualisasi Kayu & Finishing</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-wood: #8B7355;
+            --secondary-wood: #A0826D;
+            --accent-wood: #D4A574;
+            --dark-wood: #5D4E37;
+            --light-bg: #F5F1ED;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light-bg);
+            color: #2C2416;
+            overflow-x: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-wood), var(--secondary-wood));
+            color: white;
+            padding: 1.2rem 0;
+            box-shadow: 0 2px 15px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .app-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .install-banner {
+            background: var(--accent-wood);
+            color: white;
+            padding: 0.8rem;
+            text-align: center;
+            display: none;
+        }
+
+        .nav-tabs {
+            border: none;
+            margin-top: 1rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--dark-wood);
+            border: none;
+            border-radius: 10px 10px 0 0;
+            margin-right: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: var(--accent-wood);
+            color: white;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-wood);
+            color: white;
+            font-weight: 600;
+        }
+
+        .main-content {
+            padding: 2rem 0 4rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        .card-custom {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .preview-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .preview-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .wood-preview {
+            width: 80%;
+            height: 80%;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .before-after-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .before-after-container.active {
+            display: block;
+        }
+
+        .before-slide, .after-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .before-slide {
+            left: 0;
+        }
+
+        .after-slide {
+            right: 0;
+            clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+        }
+
+        .slider-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: white;
+            cursor: ew-resize;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            transform: translateX(-50%);
+        }
+
+        .slider-handle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: ew-resize;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-wood);
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .info-card h5 {
+            color: var(--primary-wood);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-wood {
+            background: var(--primary-wood);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-wood:hover {
+            background: var(--dark-wood);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px var(--shadow);
+        }
+
+        .btn-outline-wood {
+            background: transparent;
+            color: var(--primary-wood);
+            border: 2px solid var(--primary-wood);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-wood:hover {
+            background: var(--primary-wood);
+            color: white;
+        }
+
+        .favorite-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .favorite-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+
+        .favorite-preview {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .comparison-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .comparison-preview {
+            width: 100%;
+            height: 250px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .light-mode-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .light-studio { background: #fff3cd; color: #856404; }
+        .light-warm { background: #ffe5b4; color: #856404; }
+        .light-dim { background: #6c757d; color: white; }
+
+        .toast-custom {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--primary-wood);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px var(--shadow);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-wood);
+            box-shadow: 0 0 0 0.2rem rgba(139, 115, 85, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .app-header h1 {
+                font-size: 1.4rem;
+            }
+
+            .preview-container,
+            .before-after-container {
+                height: 300px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="bi bi-tree-fill"></i> RUPAKAYU</h1>
+                <button class="btn btn-light btn-sm" id="installBtn" style="display: none;">
+                    <i class="bi bi-download"></i> Install App
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Install Banner -->
+    <div class="install-banner" id="installBanner">
+        <i class="bi bi-info-circle-fill"></i> Install aplikasi untuk akses offline penuh
+        <button class="btn btn-sm btn-light ms-2" onclick="dismissBanner()">Tutup</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="container">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#preview-tab">
+                    <i class="bi bi-eye"></i> Preview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#comparison-tab">
+                    <i class="bi bi-columns-gap"></i> Perbandingan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#favorites-tab">
+                    <i class="bi bi-heart-fill"></i> Favorit
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <div class="tab-content">
+            
+            <!-- Preview Tab -->
+            <div class="tab-pane fade show active" id="preview-tab">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card-custom">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4>
+                                    Preview
+                                    <span class="light-mode-badge light-studio" id="lightBadge">Studio</span>
+                                </h4>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-wood me-2" onclick="toggleBeforeAfter()">
+                                        <i class="bi bi-arrow-left-right"></i> Before/After
+                                    </button>
+                                    <button class="btn btn-sm btn-wood" onclick="saveToFavorites()">
+                                        <i class="bi bi-heart-fill"></i> Simpan
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Normal Preview -->
+                            <div class="preview-container" id="normalPreview">
+                                <div class="preview-content">
+                                    <div class="wood-preview" id="woodPreview">
+                                        <div class="text-center">
+                                            <i class="bi bi-image" style="font-size: 4rem;"></i>
+                                            <p class="mt-3">Pilih kayu dan finishing</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Before-After Preview -->
+                            <div class="before-after-container" id="beforeAfterContainer">
+                                <div class="before-slide">
+                                    <div class="wood-preview" id="beforePreview" style="width: 100%; height: 100%; margin: 0;">
+                                        Before
+                                    </div>
+                                </div>
+                                <div class="after-slide">
+                                    <div class="wood-preview" id="afterPreview" style="width: 100%; height: 100%; margin: 0;">
+                                        After
+                                    </div>
+                                </div>
+                                <div class="slider-line" id="sliderLine">
+                                    <div class="slider-handle">
+                                        <i class="bi bi-arrows-expand"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Cards -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-card">
+                                    <h5><i class="bi bi-tree"></i> Informasi Kayu</h5>
+                                    <p id="woodInfo">Pilih jenis kayu untuk melihat informasi detail</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-card">
+                                    <h5><i class="bi bi-droplet"></i> Informasi Finishing</h5>
+                                    <p id="finishInfo">Pilih jenis finishing untuk melihat informasi detail</p>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-card">
+                                    <h5><i class="bi bi-lightbulb"></i> Rekomendasi Penggunaan</h5>
+                                    <p id="recommendInfo">Rekomendasi akan muncul setelah memilih kombinasi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card-custom">
+                            <h4 class="mb-4">Pengaturan</h4>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-tree"></i> Jenis Kayu
+                                </label>
+                                <select class="form-select" id="woodType" onchange="updatePreview()">
+                                    <option value="">-- Pilih Kayu --</option>
+                                    <option value="jati">Kayu Jati</option>
+                                    <option value="mahoni">Kayu Mahoni</option>
+                                    <option value="meranti">Kayu Meranti</option>
+                                    <option value="pinus">Kayu Pinus</option>
+                                    <option value="sungkai">Kayu Sungkai</option>
+                                    <option value="trembesi">Kayu Trembesi</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-droplet"></i> Jenis Finishing
+                                </label>
+                                <select class="form-select" id="finishType" onchange="updatePreview()">
+                                    <option value="">-- Pilih Finishing --</option>
+                                    <option value="natural">Natural/Clear</option>
+                                    <option value="melamine">Melamine</option>
+                                    <option value="duco">Duco (Cat)</option>
+                                    <option value="oil">Oil Finish</option>
+                                    <option value="wax">Wax</option>
+                                    <option value="stain">Wood Stain</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-door-closed"></i> Jenis Furnitur
+                                </label>
+                                <select class="form-select" id="furnitureType" onchange="updatePreview()">
+                                    <option value="">-- Pilih Furnitur --</option>
+                                    <option value="meja">Meja</option>
+                                    <option value="kursi">Kursi</option>
+                                    <option value="lemari">Lemari</option>
+                                    <option value="rak">Rak Buku</option>
+                                    <option value="pintu">Pintu</option>
+                                    <option value="lantai">Lantai Kayu</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-brightness-high"></i> Mode Cahaya
+                                </label>
+                                <select class="form-select" id="lightMode" onchange="updateLightMode()">
+                                    <option value="studio">Studio (Terang)</option>
+                                    <option value="warm">Warm (Hangat)</option>
+                                    <option value="dim">Dim (Redup)</option>
+                                </select>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-wood" onclick="saveToFavorites()">
+                                    <i class="bi bi-heart-fill"></i> Simpan ke Favorit
+                                </button>
+                                <button class="btn btn-outline-wood" onclick="resetSettings()">
+                                    <i class="bi bi-arrow-clockwise"></i> Reset Pengaturan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Tab -->
+            <div class="tab-pane fade" id="comparison-tab">
+                <div class="card-custom">
+                    <h4 class="mb-4"><i class="bi bi-columns-gap"></i> Perbandingan Material</h4>
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <h5>Pilihan 1</h5>
+                            <div class="comparison-preview" id="comp1Preview">
+                                <i class="bi bi-image" style="font-size: 3rem;"></i>
+                            </div>
+                            <select class="form-select mb-2" id="comp1Wood" onchange="updateComparison(1)">
+                                <option value="">-- Pilih Kayu --</option>
+                                <option value="jati">Kayu Jati</option>
+                                <option value="mahoni">Kayu Mahoni</option>
+                                <option value="meranti">Kayu Meranti</option>
+                                <option value="pinus">Kayu Pinus</option>
+                                <option value="sungkai">Kayu Sungkai</option>
+                                <option value="trembesi">Kayu Trembesi</option>
+                            </select>
+                            <select class="form-select mb-2" id="comp1Finish" onchange="updateComparison(1)">
+                                <option value="">-- Pilih Finishing --</option>
+                                <option value="natural">Natural/Clear</option>
+                                <option value="melamine">Melamine</option>
+                                <option value="duco">Duco</option>
+                                <option value="oil">Oil Finish</option>
+                                <option value="wax">Wax</option>
+                                <option value="stain">Wood Stain</option>
+                            </select>
+                            <select class="form-select" id="comp1Furniture" onchange="updateComparison(1)">
+                                <option value="">-- Pilih Furnitur --</option>
+                                <option value="meja">Meja</option>
+                                <option value="kursi">Kursi</option>
+                                <option value="lemari">Lemari</option>
+                                <option value="rak">Rak Buku</option>
+                            </select>
+                            <p class="mt-3 small text-muted" id="comp1Info"></p>
+                        </div>
+
+                        <div class="comparison-item">
+                            <h5>Pilihan 2</h5>
+                            <div class="comparison-preview" id="comp2Preview">
+                                <i class="bi bi-image" style="font-size: 3rem;"></i>
+                            </div>
+                            <select class="form-select mb-2" id="comp2Wood" onchange="updateComparison(2)">
+                                <option value="">-- Pilih Kayu --</option>
+                                <option value="jati">Kayu Jati</option>
+                                <option value="mahoni">Kayu Mahoni</option>
+                                <option value="meranti">Kayu Meranti</option>
+                                <option value="pinus">Kayu Pinus</option>
+                                <option value="sungkai">Kayu Sungkai</option>
+                                <option value="trembesi">Kayu Trembesi</option>
+                            </select>
+                            <select class="form-select mb-2" id="comp2Finish" onchange="updateComparison(2)">
+                                <option value="">-- Pilih Finishing --</option>
+                                <option value="natural">Natural/Clear</option>
+                                <option value="melamine">Melamine</option>
+                                <option value="duco">Duco</option>
+                                <option value="oil">Oil Finish</option>
+                                <option value="wax">Wax</option>
+                                <option value="stain">Wood Stain</option>
+                            </select>
+                            <select class="form-select" id="comp2Furniture" onchange="updateComparison(2)">
+                                <option value="">-- Pilih Furnitur --</option>
+                                <option value="meja">Meja</option>
+                                <option value="kursi">Kursi</option>
+                                <option value="lemari">Lemari</option>
+                                <option value="rak">Rak Buku</option>
+                            </select>
+                            <p class="mt-3 small text-muted" id="comp2Info"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorites Tab -->
+            <div class="tab-pane fade" id="favorites-tab">
+                <div class="card-custom">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4><i class="bi bi-heart-fill"></i> Kombinasi Favorit</h4>
+                        <button class="btn btn-sm btn-outline-wood" onclick="clearAllFavorites()">
+                            <i class="bi bi-trash"></i> Hapus Semua
+                        </button>
+                    </div>
+                    <div class="row" id="favoritesList">
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="bi bi-heart" style="font-size: 3rem;"></i>
+                            <p class="mt-3">Belum ada kombinasi favorit tersimpan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-custom" id="toastNotif">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Data kayu
+        const woodDatabase = {
+            jati: {
+                name: 'Kayu Jati',
+                desc: 'Kayu premium dengan serat kuat dan warna cokelat keemasan. Sangat tahan terhadap cuaca, rayap, dan jamur. Memiliki daya tahan luar biasa hingga puluhan tahun.',
+                color: 'linear-gradient(135deg, #8B6F47 0%, #A0826D 50%, #8B6F47 100%)',
+                durability: 'Sangat Tinggi'
+            },
+            mahoni: {
+                name: 'Kayu Mahoni',
+                desc: 'Kayu dengan warna merah kecokelatan dan serat halus. Mudah dikerjakan dan cocok untuk furnitur interior berkelas. Tahan terhadap rayap.',
+                color: 'linear-gradient(135deg, #7E4A35 0%, #9B6B53 50%, #7E4A35 100%)',
+                durability: 'Tinggi'
+            },
+            meranti: {
+                name: 'Kayu Meranti',
+                desc: 'Kayu dengan warna merah muda hingga merah tua. Mudah dikerjakan dan harga relatif terjangkau. Cocok untuk berbagai jenis furnitur.',
+                color: 'linear-gradient(135deg, #B8735A 0%, #D4A184 50%, #B8735A 100%)',
+                durability: 'Sedang'
+            },
+            pinus: {
+                name: 'Kayu Pinus',
+                desc: 'Kayu ringan dengan warna terang dan aroma khas. Cocok untuk furnitur bergaya modern minimalis dan rustic. Mudah diwarnai dan difinishing.',
+                color: 'linear-gradient(135deg, #E8D4B0 0%, #F5E6D3 50%, #E8D4B0 100%)',
+                durability: 'Sedang'
+            },
+            sungkai: {
+                name: 'Kayu Sungkai',
+                desc: 'Kayu dengan warna putih kekuningan dan serat lurus. Populer untuk furnitur modern karena warnanya yang cerah dan tekstur halus.',
+                color: 'linear-gradient(135deg, #D4C4A8 0%, #E8DCC8 50%, #D4C4A8 100%)',
+                durability: 'Sedang-Tinggi'
+            },
+            trembesi: {
+                name: 'Kayu Trembesi',
+                desc: 'Kayu solid dengan serat unik dan warna cokelat gelap. Sangat kuat dan cocok untuk furniture statement piece. Tahan lama dan stabil.',
+                color: 'linear-gradient(135deg, #5D4E37 0%, #7A6651 50%, #5D4E37 100%)',
+                durability: 'Tinggi'
+            }
+        };
+
+        // Data finishing
+        const finishDatabase = {
+            natural: {
+                name: 'Natural/Clear',
+                desc: 'Finishing transparan yang mempertahankan warna dan serat alami kayu. Memberikan tampilan natural dan elegan dengan perlindungan optimal.',
+                filter: 'brightness(1.1) contrast(1.05)',
+                recommend: 'Sangat cocok untuk kayu premium seperti jati dan trembesi yang memiliki serat indah'
+            },
+            melamine: {
+                name: 'Melamine',
+                desc: 'Lapisan pelindung yang sangat kuat dan tahan lama. Memberikan permukaan halus, mudah dibersihkan, dan tahan terhadap goresan.',
+                filter: 'contrast(1.15) saturate(0.95) brightness(1.05)',
+                recommend: 'Ideal untuk furnitur dapur, lemari, dan furniture yang sering digunakan'
+            },
+            duco: {
+                name: 'Duco (Cat)',
+                desc: 'Finishing
